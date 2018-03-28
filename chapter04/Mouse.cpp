@@ -17,7 +17,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	WndClass.lpfnWndProc = WndProc;
 	WndClass.lpszClassName = lpszClass;
 	WndClass.lpszMenuName = NULL;
-	WndClass.style = CS_HREDRAW | CS_VREDRAW;
+	WndClass.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;		//더블클릭 사용
 	RegisterClass(&WndClass);
 
 	hWnd = CreateWindow(lpszClass, lpszClass, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, (HMENU)NULL, hInstance, NULL);
@@ -54,12 +54,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	case WM_LBUTTONUP:
 		bNowDraw = FALSE;
 		return 0;
-
+	case WM_LBUTTONDBLCLK:
+		InvalidateRect(hWnd, NULL, TRUE);
+		return 0;
 
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
 	}
-	
+
 	return(DefWindowProc(hWnd, iMessage, wParam, lParam));
 }
