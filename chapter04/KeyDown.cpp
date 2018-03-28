@@ -42,23 +42,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		switch (wParam)
 		{
 		case VK_LEFT:
-			x -= 8;
+			x -= 15;
 			break;
 		case VK_RIGHT:
-			x += 8;
+			x += 15;
 			break;
 		case VK_UP:
-			y -= 8;
+			y -= 15;
 			break;
 		case VK_DOWN:
-			y += 8;
+			y += 15;
 			break;
 		}
 		InvalidateRect(hWnd, NULL, TRUE);
 		return 0;
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
-		TextOut(hdc, x, y, TEXT("Hi"), 2);
+		TextOut(hdc, x, y, TEXT("★"), 1);
 		EndPaint(hWnd, &ps);
 		return 0;
 	case WM_DESTROY:
@@ -67,7 +67,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	}
 	return(DefWindowProc(hWnd, iMessage, wParam, lParam));
 }
-void Line(const HDC& hdc, const int &left,const int& top,const int& right, const int& bottom) {	//선그리기 함수 정의
-	MoveToEx(hdc, left, top,NULL);
+void Line(const HDC& hdc, const int &left, const int& top, const int& right, const int& bottom) {	//선그리기 함수 정의
+	MoveToEx(hdc, left, top, NULL);
 	LineTo(hdc, right, bottom);
 }
