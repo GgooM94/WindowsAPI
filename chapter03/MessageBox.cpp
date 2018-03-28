@@ -31,8 +31,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	return (int)Message.wParam;
 }
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
-	HDC hdc;		//DC(Device Context) 출력에 필요한 모든 정보를 가지는 데이터 구조체
-	PAINTSTRUCT ps;	//화면이 지워질 때마다 문자열을 출력 하기 위해.
 	switch (iMessage)
 	{
 	case WM_LBUTTONDOWN:
@@ -45,7 +43,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	}
 	return(DefWindowProc(hWnd, iMessage, wParam, lParam));
 }
-void Line(const HDC& hdc, const int &left,const int& top,const int& right, const int& bottom) {	//선그리기 함수 정의
-	MoveToEx(hdc, left, top,NULL);
+void Line(const HDC& hdc, const int &left, const int& top, const int& right, const int& bottom) {	//선그리기 함수 정의
+	MoveToEx(hdc, left, top, NULL);
 	LineTo(hdc, right, bottom);
 }
