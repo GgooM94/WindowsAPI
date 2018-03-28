@@ -37,6 +37,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 	HDC hdc;		//DC(Device Context) 출력에 필요한 모든 정보를 가지는 데이터 구조체
 	PAINTSTRUCT ps;	//화면이 지워질 때마다 문자열을 출력 하기 위해.
+	TCHAR *str = TEXT("Beautiful Korea");		//문자배열에 문자열을 넣어 lstrlen으로 문자열 길이 계산
 	switch (iMessage)
 	{
 	case WM_DESTROY:
@@ -44,7 +45,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		return 0;
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
-		TextOut(hdc, 100, 100, TEXT("Beautiful Korea"), 15);
+		SetTextAlign(hdc, TA_CENTER);	//UINT SetTextAlign(HDC hdc, UINT fMode fMode) fMode로 받은 값으로 정렬
+		TextOut(hdc, 100, 100, str, lstrlen(str));
+		TextOut(hdc, 100, 80, TEXT("is My"), 5);
+		TextOut(hdc, 100, 60, TEXT("Lovely Home Country"), 19);
 		EndPaint(hWnd, &ps);
 		return 0;
 	}
