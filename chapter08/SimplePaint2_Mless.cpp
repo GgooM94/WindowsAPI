@@ -4,7 +4,7 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 HINSTANCE g_hInst;
 HWND hWndMain;
 LPCTSTR lpszClass = TEXT("Mless Dlg");
-
+HWND hMDlg;
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow) {
 	HWND hWnd;
@@ -28,8 +28,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 
 	while (GetMessage(&Message, NULL, 0, 0))
 	{
-		TranslateMessage(&Message);
-		DispatchMessage(&Message);
+		if (!IsWindow(hMDlg) || !IsDialogMessage(hMDlg, &Message)) {
+			TranslateMessage(&Message);
+			DispatchMessage(&Message);
+		}
 	}
 	return (int)Message.wParam;
 }
@@ -42,7 +44,7 @@ BOOL CALLBACK SetDlgProc(HWND hSetDlg, UINT iMessage, WPARAM wParam, LPARAM lPar
 	switch (iMessage)
 	{
 	case WM_INITDIALOG:
-		SetDlgItemInt(hSetDlg, IDC_EDRED, Red,FALSE);
+		SetDlgItemInt(hSetDlg, IDC_EDRED, Red, FALSE);
 		SetDlgItemInt(hSetDlg, IDC_EDGREEN, Green, FALSE);
 		SetDlgItemInt(hSetDlg, IDC_EDBLUE, Blue, FALSE);
 		SetDlgItemInt(hSetDlg, IDC_EDSIZE, size, FALSE);
@@ -61,16 +63,20 @@ BOOL CALLBACK SetDlgProc(HWND hSetDlg, UINT iMessage, WPARAM wParam, LPARAM lPar
 				MessageBox(hSetDlg, TEXT("색상 값을 다시 입력하십시오."), TEXT("알림"), MB_OK);
 			}
 			return  TRUE;
+		case ID_RESET:
+			InvalidateRect(hWndMain, NULL, TRUE);
+			return TRUE;
 		case IDCANCEL:
-			EndDialog(hSetDlg, IDCANCEL);
+			DestroyWindow(hMDlg);
+			hMDlg = NULL;
 			return TRUE;
 		}
 	}
 	return FALSE;
 }
 
-HWND hMDlg;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
+	hWndMain = hWnd;
 	HDC hdc;
 	PAINTSTRUCT ps;
 	HBRUSH MyBrush, OldBrush;
@@ -81,7 +87,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	switch (iMessage)
 	{
 	case WM_CREATE:
-		CreateWindow(TEXT("static"), TEXT("지우기 : Space"), WS_CHILD | WS_VISIBLE, 10, 10, 100, 15,hWnd, (HMENU)-1, g_hInst, NULL);
 		hMDlg = CreateDialog(g_hInst, MAKEINTRESOURCE(IDD_DIALOG1), hWnd, SetDlgProc);
 		ShowWindow(hMDlg, SW_SHOW);
 		return 0;
@@ -111,7 +116,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	case WM_KEYDOWN:
 		switch (wParam) {
 		case VK_SPACE:
-			InvalidateRect(hWnd, NULL, TRUE);
+
 			return 0;
 		}
 	case WM_RBUTTONDOWN:
