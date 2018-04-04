@@ -1,6 +1,6 @@
 #include<Windows.h>
 #include"resource.h"
-
+#include<mmstream.h>
 #define MAXSTAGE 3
 #define BW 32
 #define BH 32
@@ -28,67 +28,69 @@ char ns[18][21];
 int nStage;
 int nx, ny;
 int nMove;
-HBITMAP hBit[5];
+HBITMAP hBit[8];
+int Manbit;
+BOOL bSound = TRUE;
 char arStage[MAXSTAGE][18][21] = {
 	{
-	"####################",
-	"####################",
-	"####################",
-	"#####   ############",
-	"#####O  ############",
-	"#####  O############",
-	"###  OO  ###########",
-	"### # ## ###########",
-	"#   # ## #####  ..##",
-	"# O   O   @     ..##",
-	"##### ### # ##  ..##",
-	"#####     ##########",
-	"####################",
-	"####################",
-	"####################",
-	"####################",
-	"####################",
-	"####################"
+		"####################",
+		"####################",
+		"####################",
+		"#####   ############",
+		"#####O  ############",
+		"#####  O############",
+		"###  OO  ###########",
+		"### # ## ###########",
+		"#   # ## #####  ..##",
+		"# O   O   @     ..##",
+		"##### ### # ##  ..##",
+		"#####     ##########",
+		"####################",
+		"####################",
+		"####################",
+		"####################",
+		"####################",
+		"####################"
 	},
 	{
-	"####################",
-	"####################",
-	"####################",
-	"####################",
-	"####..  #     ######",
-	"####..  #O   O  ####" ,
-	"####..  #O####  ####" ,
-	"####..    @ ##  ####" ,
-	"####..  # #  O #####" ,
-	"######### ##O O ####" ,
-	"##### O   O O O ####" ,
-	"#####     #     ####" ,
-	"####################",
-	"####################",
-	"####################",
-	"####################",
-	"####################",
-	"####################"
+		"####################",
+		"####################",
+		"####################",
+		"####################",
+		"####..  #     ######",
+		"####..  # O  O  ####" ,
+		"####..  #O####  ####" ,
+		"####..    @ ##  ####" ,
+		"####..  # #  O #####" ,
+		"######### ##O O ####" ,
+		"##### O   O O O ####" ,
+		"#####     #     ####" ,
+		"####################",
+		"####################",
+		"####################",
+		"####################",
+		"####################",
+		"####################"
 	},
 	{
-	"####################",
-	"####################",
-	"####################",
-	"####################",
-	"##########     @####",
-	"########## O#O #####",
-	"########## O  O#####",
-	"###########O O #####",
-	"########## O # #####",
-	"##....  ## O #   ###",
-	"###...     O #   ###",
-	"##....  ############",
-	"####################",
-	"####################",
-	"####################",
-	"####################",
-	"####################",
-	"####################"
+		"####################",
+		"####################",
+		"####################",
+		"####################",
+		"##########     @####",
+		"########## O#O #####",
+		"########## O  O#####",
+		"###########O O #####",
+		"########## O # #####",
+		"##....  ## O O   ###",
+		"###...     O O   ###",
+		"##....  ############",
+		"####################",
+		"####################",
+		"####################",
+		"####################",
+		"####################",
+		"####################"
 	},
 };
 
@@ -105,7 +107,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 
 	WndClass.cbClsExtra = 0;
 	WndClass.cbWndExtra = 0;
-	WndClass.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+	WndClass.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	WndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
 	WndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 	WndClass.hInstance = hInstance;
@@ -114,7 +116,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	WndClass.lpszMenuName = NULL;
 	WndClass.style = CS_HREDRAW | CS_VREDRAW;
 	RegisterClass(&WndClass);
-	hWnd = CreateWindow(lpszClass, lpszClass,WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX, CW_USEDEFAULT, CW_USEDEFAULT, 0, 0, NULL, (HMENU)NULL, hInstance, NULL);
+	hWnd = CreateWindow(lpszClass, lpszClass, WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, CW_USEDEFAULT, CW_USEDEFAULT, 0, 0, NULL, (HMENU)NULL, hInstance, NULL);
 	ShowWindow(hWnd, nCmdShow);
 
 	while (GetMessage(&Message, NULL, 0, 0))
@@ -138,8 +140,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		hWndMain = hWnd;
 		SetRect(&crt, 0, 0, 900, BH * 18);
 		AdjustWindowRect(&crt, WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, FALSE);
-		SetWindowPos(hWnd, NULL, 0, 0, crt.right - crt.left, crt.bottom - crt.top,SWP_NOMOVE | SWP_NOZORDER);
-		for (i = 0; i < 5; i++) {
+		SetWindowPos(hWnd, NULL, 0, 0, crt.right - crt.left, crt.bottom - crt.top, SWP_NOMOVE | SWP_NOZORDER);
+		for (i = 0; i < 8; i++) {
 			hBit[i] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_WALL + i));
 		}
 		nStage = 0;
@@ -193,11 +195,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		case 'Y':
 			Redo();
 			break;
+		case 'S':
+			bSound = !bSound;
+			break;
 		}
 		return 0;
 
 	case WM_DESTROY:
-		for (i = 0; i < 5; i++) {
+		for (i = 0; i < 8; i++) {
 			DeleteObject(hBit[i]);
 		}
 		PostQuitMessage(0);
@@ -225,12 +230,12 @@ void DrawScreen(HDC hdc) {
 				break;
 			case ' ':
 				iBit = 3;
-				break;		
+				break;
 			}
 			DrawBitmap(hdc, x*BW, y*BH, hBit[iBit]);
 		}
 	}
-	DrawBitmap(hdc, nx*BW, ny*BH, hBit[4]);
+	DrawBitmap(hdc, nx*BW, ny*BH, hBit[Manbit]);
 
 	wsprintf(Message, TEXT("SOKOBAN"));
 	TextOut(hdc, 700, 10, Message, lstrlen(Message));
@@ -238,9 +243,9 @@ void DrawScreen(HDC hdc) {
 	TextOut(hdc, 700, 30, Message, lstrlen(Message));
 	wsprintf(Message, TEXT("N:다음, P:다시 이전"));
 	TextOut(hdc, 700, 50, Message, lstrlen(Message));
-	wsprintf(Message, TEXT("스테이지 : %d"),nStage+1);
+	wsprintf(Message, TEXT("스테이지 : %d"), nStage + 1);
 	TextOut(hdc, 700, 70, Message, lstrlen(Message));
-	wsprintf(Message, TEXT("이동 회수 : %d"),nMove);
+	wsprintf(Message, TEXT("이동 회수 : %d"), nMove);
 	TextOut(hdc, 700, 70, Message, lstrlen(Message));
 }
 BOOL TestEnd() {
@@ -249,7 +254,7 @@ BOOL TestEnd() {
 	for (y = 0; y < 18; y++) {
 		for (x = 0; x < 20; x++) {
 			if (arStage[nStage][y][x] == '.'&& ns[y][x] != 'O') {
-			return FALSE;
+				return FALSE;
 			}
 		}
 	}
@@ -257,34 +262,40 @@ BOOL TestEnd() {
 }
 
 void Move(int dir) {
-	int dx = 0, dy = 0;
+	int dx = 0;
+	int dy = 0;
 	BOOL bWithPack = FALSE;
 	switch (dir)
 	{
 	case VK_LEFT:
+		Manbit = 4;
 		dx = -1;
 		break;
 	case VK_RIGHT:
+		Manbit = 5;
 		dx = 1;
 		break;
 	case VK_UP:
+		Manbit = 6;
 		dy = -1;
 		break;
 	case VK_DOWN:
+		Manbit = 7;
 		dy = 1;
 		break;
 	}
 	if (ns[ny + dy][nx + dx] != '#') {
 		if (ns[ny + dy][nx + dx] == 'O') {
 			if (ns[ny + dy * 2][nx + dx * 2] == ' ' || ns[ny + dy * 2][nx + dx * 2] == '.') {
-				ErasePack(nx + dx, ny + dx);
+				ErasePack(nx + dx, ny + dy);
 				bWithPack = TRUE;
 				if (arStage[nStage][ny + dy][nx + dx] == '.') {
 					ns[ny + dy][nx + dx] = '.';
 				}
 				else {
-					ns[ny + dy][nx + dx] = ' ';
+					ns[ny + dy * 1][nx + dx * 1] = ' ';
 				}
+
 				ns[ny + dy * 2][nx + dx * 2] = 'O';
 			}
 			else {
@@ -294,7 +305,7 @@ void Move(int dir) {
 		nx += dx;
 		ny += dy;
 		nMove++;
-		
+
 		MoveInfo[UndoIdx].dx = dx;
 		MoveInfo[UndoIdx].dy = dy;
 		MoveInfo[UndoIdx].bWithPack = bWithPack;
@@ -308,6 +319,9 @@ void Move(int dir) {
 			UndoIdx = 100;
 
 		}
+		if (bSound) {
+			//PlaySound(MAKEINTRESOURCE(bWithPack ? IDR_WITHPACK : IDR_MOVE), g_hInst, SND_RESOURCE | SND_ALIAS);
+		}
 
 		InvalidateRect(hWndMain, NULL, FALSE);
 	}
@@ -315,7 +329,7 @@ void Move(int dir) {
 
 void InitStage() {
 	int x, y;
-
+	Manbit = 4;
 	memcpy(ns, arStage[nStage], sizeof(ns));
 	for (y = 0; y < 18; y++) {
 		for (x = 0; x < 20; x++) {
@@ -359,7 +373,7 @@ void ErasePack(int x, int y) {
 		ns[y][x] = '.';
 	else
 		ns[y][x] = ' ';
-	
+
 }
 void Undo() {
 	if (UndoIdx != 0) {
